@@ -1,0 +1,19 @@
+event_homepage:
+    path:     /
+    defaults: { _controller: EventBundle:Default:index }
+
+AdminEvent:
+    path:     /adEvent
+    defaults: { _controller: EventBundle:AdminEvent:addEvent }
+
+EventAdmin:
+    path:     /EventAd/{id}
+    defaults: { _controller: EventBundle:AdminEvent:eventdetailsBack }
+
+deleteEvent:
+        path:     /delEvent/{id}
+        defaults: { _controller: EventBundle:AdminEvent:resEvent }
+
+modifEventAdmin:
+        path:     /modifEventAd/{id}
+        defaults: { _controller: EventBundle:AdminEvent:modifEvAD }

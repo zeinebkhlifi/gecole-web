@@ -1,0 +1,124 @@
+{% extends "index.html.twig" %}
+{% block title %} Gecole1 {% endblock %}
+{% block content %}
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Merriweather);
+        h1 {
+            text-align: center;
+            color: #a8a8a8;
+            text-shadow: 1px 1px 0 white;
+        }
+
+        .cf {
+            max-width: 600px;
+            text-align: center;
+            margin: 20px auto;
+        }
+        .cf input, .cf textarea, .cf select {
+            border: 0;
+            outline: 0;
+            padding: 1em;
+            -moz-border-radius: 8px;
+            -webkit-border-radius: 8px;
+            border-radius: 8px;
+            display: block;
+            width: 100%;
+            margin-top: 1em;
+            font-family: 'Merriweather', sans-serif;
+            -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+            -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+            resize: none;
+        }
+        .cf input:focus, .cf textarea:focus, .cf select:focus {
+            -moz-box-shadow: 0 0px 2px #e74c3c !important;
+            -webkit-box-shadow: 0 0px 2px #e74c3c !important;
+            box-shadow: 0 0px 2px #e74c3c !important;
+        }
+        #input-submit {
+            color: white;
+            background: #0F9E5E;
+            cursor: pointer;
+        }
+        #input-submit:hover {
+            -moz-box-shadow: 0 1px 1px 1px rgba(170, 170, 170, 0.6);
+            -webkit-box-shadow: 0 1px 1px 1px rgba(170, 170, 170, 0.6);
+            box-shadow: 0 1px 1px 1px rgba(170, 170, 170, 0.6);
+        }
+        .cf textarea {
+            height: 126px;
+        }
+
+        .half {
+            float: left;
+            width: 48%;
+            margin-bottom: 1em;
+        }
+
+        .right {
+            width: 50%;
+        }
+
+        .left {
+            margin-right: 2%;
+        }
+
+        @media (max-width: 480px) {
+            .half {
+                width: 100%;
+                float: none;
+                margin-bottom: 0;
+            }
+        }
+        /* Clearfix */
+        .cf:before,
+        .cf:after {
+            content: " ";
+            /* 1 */
+            display: table;
+            /* 2 */
+        }
+
+        .cf:after {
+            clear: both;
+        }
+
+    </style>
+    <h1>Ajouter event</h1>
+    <form class="cf" method="POST">
+        <div class="half left cf">
+            <input type="text" name="name" placeholder="Name">
+            <input type="date" name="date" placeholder="Date">
+            <input type="number" name="nbplaces" placeholder="nbplaces">
+            <input type="text" name="lieu" placeholder="Lieu">
+            <input type="file" name="image" placeholder="image">
+            <select name="grat" onchange="gratuit()">
+                <option selected id="pay" value="1" >Payé</option>
+                <option id="grat" value="0" >Gratuit</option>
+
+            </select>
+            <input type="text" name="prix" id="prix" placeholder="Prix">
+
+        </div>
+        <div class="half right cf">
+            <textarea  type="text"  name="description" id="input-message" placeholder="Message"></textarea>
+        </div>
+        <input type="submit" value="Submit" id="input-submit">
+    </form>
+    <script>
+
+        function gratuit()
+        {
+            if (document.getElementById("prix").disabled == false) {
+
+                document.getElementById("prix").disabled = true;
+            }
+            else
+            {
+                document.getElementById("prix").disabled = false;
+            }
+
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'backend/index.html.twig' %}
+{% block content %}
+    <b>Libelle : </b>{{ event.libelle }}<br>
+    <b>Description : </b>{{ event.description | raw }}<br>
+    <b>Nb. participants / Nb. places : </b> {{ event.participants | length }} / {{ event.nbrPlaces }} pers.<br>
+    <b>Date : </b> {{ event.date  | date('d/m/20y') }}<br>
+    <b>Participants : </b><br>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in event.participants %}
+                    <td>{{ p.username }}</td>
+                    <td>{{ p.email }}</td>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

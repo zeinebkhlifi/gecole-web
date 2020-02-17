@@ -1,0 +1,219 @@
+{% extends 'frontend/index.html.twig' %}
+
+{% block stylesheets %}
+    <link href="{{ asset ('assets/css/evenetsIndex.css') }}" rel="stylesheet" type="text/css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+
+    <br>
+    {% if app.user %}
+        <div class="row">
+            <div class="col-md-9">
+                <h1>Liste des événéments</h1>
+            </div>
+            <div class="col-md-3 text-right">
+                <a href="{{ path('event_new') }}" class="btn btn-success">
+                    <i class="icon-plus">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        &nbsp;Ajouter un évènement
+                    </i>
+                </a>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-4">
+                Rechercher : <br>
+                <input id="keyWord" type="text" class="keyWord form-control" placeholder="Recherche publications">
+            </div>
+            {#<div class="col-md-4">#}
+                {#Rechercher : <input id="ville" type="text" class="ville form-control" placeholder="Recherche publications">#}
+            {#</div>#}
+            <div class="col-md-1">
+                Ville :<br>
+                <select id="ville" class=" form-control btn-lg" >
+                    {% for v in villes %}
+                        <option value="{{ v }}">{{ v }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1">
+                Type :<br>
+                <select id="type" class=" form-control">
+                    <option value="Musical">Musical</option>
+                    <option value="Sport">Sport</option>
+                    <option value="Socicale">Socicale</option>
+                </select>
+            </div>
+
+        </div>
+
+    {% else %}
+        <div class="row">
+            <div class="col-md-9">
+                <h1>Liste des événéments</h1>
+            </div>
+            <div class="col-md-3 text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                    <i class="icon-plus">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        &nbsp;Ajouter un évènement
+                    </i>
+                </button>
+            </div>
+        </div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <i class="fa fa-exclamation fa-5x" style="color: red;margin: 0 auto;"></i>
+                        <h5 class="modal-title" id="exampleModalLabel">Vous devez se connecter d'abord</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <a href="{{ path('fos_user_registration_register') }}">
+                            <button class="btn btn-default btn-cons  btn-sm">S'inscrire</button>
+                        </a>
+                        <a href="{{ path('fos_user_security_login') }}">
+                            <button type="button" class="btn btn-primary">Se connecter</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <br>
+    <div class="row" id="eventsContent">
+        {% for  evenement in events %}
+            <div class="col-sm-6">
+                <ul class="event-list">
+                    <li>
+                        <time
+                            {% if evenement.cover != '' %}
+                                style="filter: blur(1px); background-size: 120px 120px; background-image:url('{{ asset('uploads/evt/cover/' ~ evenement.cover) }}');"
+                            {% else %}
+                                style="filter: blur(1px);background-size: 120px 120px; background-image:url('{{ asset('assets/img/NA.png') }}')"
+                            {% endif %}
+                            datetime="2014-07-31 1600">
+                        </time>
+                        <div class="info" style="padding: 0 10px;">
+                            <div class="" data-social="item">
+                                <div class="card-description" style="padding: 0px 0px;">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h3 style="font-size: 1vw; line-height: normal;"><a
+                                                        href="{{ path('event_show', { 'id': evenement.id }) }}">{{ evenement.libelle }}
+                                                </a>
+
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <span class="location semi-bold"> <i
+                                                    class="fa fa-map-marker"></i> {{ evenement.lieu }}</span>
+                                    </p>
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <div class="via">via {{ evenement.createdBy }}</div>
+                                        </div>
+                                        {% if app.user %}
+                                            <div class="col-md-7 text-right">
+                                                {% if app.user in evenement.participants %}
+                                                    <button id="annuleParticiper" type="submit"
+                                                            value="{{ evenement.id }}"
+                                                            class="annuler{{ evenement.id }} btn annuleParticiper btn-sm btn-info">
+                                                        <i class="fa fa-thumbs-down" aria-hidden="true"></i>Je participe
+                                                        plus
+                                                    </button>
+                                                {% else %}
+                                                    <button id="participer" type="submit" value="{{ evenement.id }}"
+                                                            class="confirmer{{ evenement.id }} btn participer btn-sm btn-info">
+                                                        <i class="fa fa-smile-o" aria-hidden="true"></i>Je participe!
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
+{% block javascripts %}
+    <script type="text/javascript">
+        $(".participer").click(function () {
+            var id = $(this).val();
+            $.ajax({
+                dataType: "json",
+                url: "{{ path("front_event_participer_ajax") }}",
+                data: {
+                    "id": id
+                },
+                error: function (response) {
+                    $("#eventsContent").html(response);
+                },
+                success: function (response) {
+                    $("#eventsContent").html(response);
+                }
+            });
+        });
+
+        $(".annuleParticiper").click(function () {
+            var id = $(this).val();
+            $.ajax({
+                dataType: "json",
+                url: "{{ path("front_event_no_participer_ajax") }}",
+                data: {
+                    "id": id
+                },
+                error: function (response) {
+                    $("#eventsContent").html(response);
+                },
+                success: function (response) {
+                    $("#eventsContent").html(response);
+                }
+            });
+        });
+
+    </script>
+
+    <script>
+        $(document).ready(function(){
+            $(".keyWord").keyup(function () {
+                var keyWord = $(this).val();
+                $.ajax({
+                    dataType: "json",
+                    url : '{{ path('event_keyword_recherche') }}',
+                    data: {
+                        "keyWord": keyWord
+                    },
+                    error:function(response) {
+                        alert("err");
+                        $("#eventsContent").html(response);
+                    },
+                    success:function(response) {
+                        $("#eventsContent").html(response);
+                    },
+                });
+            });
+        });
+    </script>
+{% endblock %}
+

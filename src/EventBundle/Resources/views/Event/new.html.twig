@@ -1,0 +1,25 @@
+{% extends 'frontend/index.html.twig' %}
+{% block body %}
+    {{ form_start(form) }}
+    <div class="row">
+        <div class="col-md-8">
+            <h1><b>Nouveau événément</b></h1>
+        </div>
+        <div class="col-md-4 text-right">
+            <br>
+            <button type="submit" class="btn btn-success" value="Create">
+                <i class="fa fa-check" aria-hidden="true"></i>
+                Confirmer
+            </button>
+            <a href="{{ path('event_index') }}" class="btn btn-secondary">
+                <i class="fa fa-undo" aria-hidden="true"></i>
+                Retour à la liste</a>
+
+            <br>
+        </div>
+    </div>
+    {% form_theme form 'bootstrap_3_layout.html.twig' %}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+
+{% endblock %}

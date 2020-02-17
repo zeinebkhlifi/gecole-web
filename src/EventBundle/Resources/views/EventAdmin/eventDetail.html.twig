@@ -1,0 +1,51 @@
+{% extends "index.html.twig" %}
+{% block title %} Gecole1 {% endblock %}
+{% block content %}
+
+    <div class="">
+
+        <!-- Profile Image -->
+        <div class="box box-primary">
+            <div class="box-body box-profile">
+                <img class="profile-user-img img-responsive img-circle" src="{{ asset('front/') }}images/blog/{{ event_details.image }}" alt="User profile picture">
+
+                <h3 class="profile-username text-center">{{ event_details.nom }}</h3>
+
+                <strong><i  class="fa fa-money"></i> Prix </strong>
+                <p class="text-muted ">
+                    {% if(event_details.prix)== null %}
+                        Gratuit
+                    {% else %}
+                        {{  event_details.prix }}
+                    {% endif %}
+                </p>
+
+                <strong><i class="fa fa-map-marker margin-r-5"></i> adresse</strong>
+
+                <p class="text-muted">{{ event_details.lieu }}</p>
+
+                <strong><i class="fa fa-calendar"></i> date</strong>
+
+                <p> {{ event_details.date |date('Y-m-d') }}</p>
+
+                <strong><i class="fa fa-file-text-o margin-r-5"></i> Description</strong>
+
+                <p> {{ event_details.description }}</p>
+                <strong><i class="fa fa-user"></i> Description</strong>
+                <form method="post">
+
+                    <p>{{ event_details.nbplaces }}</p>
+                    {%  if event_details.etat==1 %}
+                        <button type="submit" name="btn btn-primary btn-block" value="{{ event_details.id }}" style="cursor: not-allowed;" disabled>Validated</button>
+                    {% else %}
+                        <button type="submit" name="btn btn-primary btn-block" value="{{ event_details.id }}" >Valider</button>
+                    {% endif %}
+                </form>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+
+        <!-- /.box -->
+    </div>
+{% endblock %}
