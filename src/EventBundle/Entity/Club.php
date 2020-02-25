@@ -48,7 +48,7 @@ class Club
 
     /**
      * @var string
-     *
+     * @Assert\NotNull(message="Vous devez fournir le type")
      * @ORM\Column(name="type", type="string", length=255)
      */
     private $type;

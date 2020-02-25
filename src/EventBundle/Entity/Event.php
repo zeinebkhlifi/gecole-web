@@ -44,13 +44,14 @@ class Event
 
     /**
      * @var string
-     *
+     * @Assert\NotNull(message="Vous devez fournir le type d'evenement")
      * @ORM\Column(name="type", type="string", length=255)
      */
     private $type;
 
     /**
      * @var \DateTime
+     * @Assert\NotNull(message="Vous devez fournir la date")
      * @Assert\GreaterThanOrEqual("today", message="La date de l'évenement doit etre supérieur à d'aujourd'hui ")
      * @ORM\Column(name="date", type="datetime")
      */
@@ -65,14 +66,14 @@ class Event
 
     /**
      * @var int
-     *
+     * @Assert\NotNull()
      * @ORM\Column(name="nbrParticipants", type="integer")
      */
     private $nbrParticipants;
 
     /**
      * @var string
-     *
+     * @Assert\NotNull(message="Vous devez fournir le lieu")
      * @ORM\Column(name="lieu", type="string", length=255)
      */
     private $lieu;
