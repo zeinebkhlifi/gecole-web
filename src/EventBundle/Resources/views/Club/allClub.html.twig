@@ -1,0 +1,27 @@
+{% if clubs is empty  %}
+    Aucun club
+{% endif %}
+{% for club in clubs %}
+    <div class="col-sm-6">
+        <ul class="event-list">
+            <li>
+                <time
+                        {% if club.cover != '' %}
+                            style="filter: blur(1px); background-size: 120px 120px; background-image:url('{{ asset('uploads/evt/cover/' ~ club.cover) }}');"
+                        {% else %}
+                            style="filter: blur(1px);background-size: 120px 120px; background-image:url('{{ asset('assets/img/NA.png') }}')"
+                        {% endif %}
+                        datetime="2014-07-31 1600">
+                </time>
+                <div class="" data-social="item">
+                    <div class="card-description" style="padding: 0px 0px;">
+                        <b>Titre : </b>{{ club.libelle }} <br>
+                        <b>Description : </b>{{ club.description }} <br>
+                        <b>Type : </b>{{ club.type }} <br>
+                        <b>Président du club :  </b>{{ club.responsable.username }}<br>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+{% endfor %}

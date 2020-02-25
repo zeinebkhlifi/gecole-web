@@ -1,5 +1,66 @@
 {% extends 'frontend/index.html.twig' %}
+
 {% block body %}
-    {{ club.libelle }}
-    {{ club.description }}
+<div class="row">
+    <div class="card link-template-tabcard" style="width:800px;margin: 20px auto;">
+        <div class="card-img-top">
+            {% if club.cover != '' %}
+                <img style="max-width:100%;" src="{{ asset('uploads/evt/cover/' ~ club.cover) }}"/>
+            {% else %}
+                <img style="max-width:100%;" src="{{ asset('assets/img/NA.png') }}"/>
+            {% endif %}
+            <div class="card-header  d-flex justify-content-between align-items-center">
+                <h3 class="package-title"
+                    style="max-width: 60%;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;font-size: 14px;margin-top: 10px">
+                    {{ club.libelle }}</h3>
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" data-target="#desc" href="#desc">Description</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" data-target="#info" href="#info">Information du club</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-0">
+                <div class="tab-content">
+                    <div class="tab-pane p-4 active" id="desc" role="tabpanel">
+                        <div id="tab-content">
+                            <div id="desc">
+                                {{ club.description }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="info" role="tabpanel">
+                        <ul class="list-group list-group-flush ml-0 mb-2">
+                            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:download_count]">
+                                Président :
+                                <span class="badge">{{ club.responsable.username }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:version]">
+                                Type :
+                                <span class="badge">{{ club.type }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:create_date]">
+                                Create Date
+                                <span class="badge">December 24, 2013</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:update_date]">
+                                Nombre d'événements crée:
+                                <span class="badge">{{ eventsClub | length }}</span>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {#<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js" type="text/javascript"></script>#}
+    {#<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>#}
+    {#<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>#}
 {% endblock %}

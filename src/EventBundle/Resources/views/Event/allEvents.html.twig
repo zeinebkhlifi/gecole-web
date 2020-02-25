@@ -37,7 +37,9 @@
     </script>
 
 {% endblock %}
-
+{% if events is empty %}
+    Aucun événements
+{% endif %}
 {% for  evenement in events %}
     <div class="col-sm-6">
         <ul class="event-list">

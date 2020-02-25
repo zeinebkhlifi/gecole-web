@@ -15,6 +15,7 @@
                 <br>
             </div>
         </div>
+
     {% else %}
         <div class="row">
             <div class="col-md-10">
@@ -58,8 +59,24 @@
         </div>
     {% endif %}
     <br>
-    <div class="row" id="eventsContent">
-        {% if clubs == null %}
+    <div class="row">
+        <div class="col-md-4">
+            Rechercher : <br>
+            <input id="keyWord" type="text" class="keyWord form-control" placeholder="Recherche club">
+        </div>
+        <div class="col-md-1">
+            Type :<br>
+            <select id="typeClub" name="typeClub" class="typeClub form-control">
+                <option value="Musical">Musical</option>
+                <option value="Sportif">Sportif</option>
+                <option value="Sociale">Socicale</option>
+            </select>
+        </div>
+
+    </div>
+    <br>
+    <div class="row" id="clubsContent">
+        {% if clubs is empty %}
              Aucun club existe
         {% endif %}
         {% for club in clubs %}
@@ -87,4 +104,49 @@
             </div>
         {% endfor %}
     </div>
+{% endblock %}
+{% block javascripts %}
+
+    <script>
+        $(document).ready(function() {
+            $("select.keyWord").keyup(function () {
+                var keyWord = $(this).val();
+                $.ajax({
+                    dataType: "json",
+                    url: '{{ path('club_keyword_recherche') }}',
+                    data: {
+                        "keyWord": keyWord
+                    },
+                    error: function (response) {
+                        alert("err");
+                        $("#clubsContent").html(response);
+                    },
+                    success: function (response) {
+                        $("#clubsContent").html(response);
+                    },
+                });
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $(".typeClub").change(function () {
+                var type = $(this).val();
+                $.ajax({
+                    dataType: "json",
+                    url: '{{ path('club_type_recherche') }}',
+                    data: {
+                        "type": type
+                    },
+                    error: function (response) {
+                        alert("err");
+                        $("#clubsContent").html(response);
+                    },
+                    success: function (response) {
+                        $("#clubsContent").html(response);
+                    },
+                });
+            });
+        });
+    </script>
 {% endblock %}

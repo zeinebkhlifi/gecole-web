@@ -8,48 +8,59 @@
 {% block body %}
 
     <br>
-    {% if app.user %}
-        <div class="row">
-            <div class="col-md-9">
-                <h1>Liste des événéments</h1>
+    {% if app.user  %}
+        {% if is_granted('ROLE_RESPONSABLE') %}
+            <div class="row">
+                <div class="col-md-9">
+                    <h1>Liste des événéments</h1>
+                </div>
+                <div class="col-md-3 text-right">
+                    <a href="{{ path('event_new') }}" class="btn btn-success">
+                        <i class="icon-plus">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            &nbsp;Ajouter un évènement
+                        </i>
+                    </a>
+                </div>
             </div>
-            <div class="col-md-3 text-right">
-                <a href="{{ path('event_new') }}" class="btn btn-success">
-                    <i class="icon-plus">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                        &nbsp;Ajouter un évènement
-                    </i>
-                </a>
+            <br>
+        {% else %}
+            <div class="row">
+                <div class="col-md-9">
+                    <h1>Liste des événéments</h1>
+                </div>
+                <div class="col-md-3 text-right">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                        <i class="icon-plus">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            &nbsp;Ajouter un évènement
+                        </i>
+                    </button>
+                </div>
             </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-md-4">
-                Rechercher : <br>
-                <input id="keyWord" type="text" class="keyWord form-control" placeholder="Recherche publications">
-            </div>
-            {#<div class="col-md-4">#}
-                {#Rechercher : <input id="ville" type="text" class="ville form-control" placeholder="Recherche publications">#}
-            {#</div>#}
-            <div class="col-md-1">
-                Ville :<br>
-                <select id="ville" class=" form-control btn-lg" >
-                    {% for v in villes %}
-                        <option value="{{ v }}">{{ v }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-1">
-                Type :<br>
-                <select id="type" class=" form-control">
-                    <option value="Musical">Musical</option>
-                    <option value="Sport">Sport</option>
-                    <option value="Socicale">Socicale</option>
-                </select>
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <i class="fa fa-exclamation fa-5x" style="color: red;margin: 0 auto;"></i>
+                            <h5 class="modal-title" id="exampleModalLabel">Seulement les responsables des clubs peuvent créer des événément</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-        </div>
-
+        {% endif %}
     {% else %}
         <div class="row">
             <div class="col-md-9">
@@ -93,8 +104,37 @@
         </div>
     {% endif %}
 
+
+    <div class="row">
+        <div class="col-md-4">
+            Rechercher : <br>
+            <input id="keyword" type="text" class="keyword criteria form-control" placeholder="Recherche publications">
+        </div>
+        <div class="col-md-1">
+            Ville :<br>
+            <select id="ville" class="ville criteria form-control btn-lg" >
+                <option value="">-</option>
+                {% for v in villes %}
+                    <option value="{{ v }}">{{ v }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1">
+            Type :<br>
+            <select id="type" class="criteria typeEvent form-control">
+                <option value="">-</option>
+                <option value="Musical">Musical</option>
+                <option value="Sportif">Sportif</option>
+                <option value="Sociale">Socicale</option>
+            </select>
+        </div>
+
+    </div>
     <br>
     <div class="row" id="eventsContent">
+        {% if events is empty  %}
+            Aucun évenement
+        {% endif %}
         {% for  evenement in events %}
             <div class="col-sm-6">
                 <ul class="event-list">
@@ -193,22 +233,25 @@
         });
 
     </script>
-
     <script>
-        $(document).ready(function(){
-            $(".keyWord").keyup(function () {
-                var keyWord = $(this).val();
+        $(document).ready(function() {
+            $(".criteria").change(function () {
+                var ville = $(".ville").val();
+                var type = $(".typeEvent").val();
+                var keyword = $(".keyword").val();
                 $.ajax({
                     dataType: "json",
-                    url : '{{ path('event_keyword_recherche') }}',
+                    url: '{{ path('event_all_recherche') }}',
                     data: {
-                        "keyWord": keyWord
+                        "ville": ville,
+                        "type": type,
+                        "keyword": keyword,
                     },
-                    error:function(response) {
+                    error: function (response) {
                         alert("err");
                         $("#eventsContent").html(response);
                     },
-                    success:function(response) {
+                    success: function (response) {
                         $("#eventsContent").html(response);
                     },
                 });

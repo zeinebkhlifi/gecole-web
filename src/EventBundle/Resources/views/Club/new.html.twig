@@ -1,4 +1,11 @@
 {% extends 'frontend/index.html.twig' %}
+{% block stylesheets %}
+<style>
+    .has-error {
+        color: red;
+    }
+</style>
+{% endblock %}
 {% block body %}
     {{ form_start(form) }}
     <div class="row">
