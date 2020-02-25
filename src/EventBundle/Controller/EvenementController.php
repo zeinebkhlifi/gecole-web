@@ -34,13 +34,15 @@ class EvenementController extends Controller
         $all = $this->getDoctrine()->getManager()->getRepository('EventBundle:Event')->findAll();
         $events = new ArrayCollection();
         $villes = new ArrayCollection();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        foreach($all as $e) {
-            if ($e->getDate()> new  \DateTime('now')) {
+        foreach ($all as $e) {
+            if (($e->getDate() > new  \DateTime('now')) // Date mazelet mat3adetch
+                && ( ($e->getParticipants()->count() <= $e->getNbrPlaces()) // mazel famma blassa
+                    || $e->getParticipants()->contains($user) )) { // walla l user connecté ykoun mel participant, bech ynajem y annuliiis
                 $events->add($e);
+                $villes->add($e->getLieu());
             }
-            $villes->add($e->getLieu());
-
         }
 
         return $this->render('@Event/Event/index.html.twig', array(
@@ -57,7 +59,7 @@ class EvenementController extends Controller
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        $club     = new Event();
+        $club = new Event();
         $formClub = $this->createForm('EventBundle\Form\EventType', $club);
         $formClub->handleRequest($request);
 
@@ -76,6 +78,56 @@ class EvenementController extends Controller
 
     }
 
+    /**
+     *
+     * @Route("/dashboard/event/", name="event_dashboard_index")
+     * @Method("GET")
+     */
+    public function indexDashboardAction()
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            $events = $this->getDoctrine()->getManager()->getRepository('EventBundle:Event')->findAll();
+        } else if ($this->get('security.authorization_checker')->isGranted('ROLE_RESPONSABLE')) {
+            $events = $this->getDoctrine()->getManager()->getRepository('EventBundle:Event')->findBy(['responsable' => $user]);
+        } else {
+            throw new AccessDeniedException("Vous n'êtes pas autorisés à accéder à cette page!", Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('@Event/Event/dashboard/index.html.twig', array(
+            'events' => $events,
+        ));
+    }
+
+    /**
+     * @Route("/dashboard/event/{id}", name="event_dashboard_show")
+     * @Method("GET")
+     */
+    public function showDashboardAction(Event $event)
+    {
+        $club = $this->getDoctrine()->getManager()->getRepository('EventBundle:Club')->findOneBy([
+            'createdBy' => $event->getCreatedBy()
+        ]);
+        return $this->render('@Event/Event/dashboard/eventShow.html.twig', array(
+            'club' => $club,
+            'event' => $event,
+        ));
+    }
+
+    /**
+     * @Route("/event/{id}", name="event_show")
+     * @Method("GET")
+     */
+    public function showAction(Event $event)
+    {
+        $club = $this->getDoctrine()->getManager()->getRepository('EventBundle:Club')->findOneBy([
+            'createdBy' => $event->getCreatedBy()
+        ]);
+        return $this->render('@Event/Event/Show.html.twig', array(
+            'club' => $club,
+            'event' => $event,
+        ));
+    }
 
     /**
      * @Route("/event/delete/{id}", name="event_delete")
@@ -97,34 +149,42 @@ class EvenementController extends Controller
     }
 
 
-
     /**
      * @Route("/evenement/oui/ajax", name="front_event_participer_ajax")
      * @Method({"GET", "POST"})
      */
     public function participerAjaxAction(Request $request)
     {
-        $id        = $request->get('id');
-        $em        = $this->getDoctrine()->getManager();
+        $id = $request->get('id');
+        $em = $this->getDoctrine()->getManager();
         $evenement = $em->getRepository('EventBundle:Event')->find($id);
-        $user      = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $user->addEventsParticipes($evenement);
         $evenement->addParticipant($user);
         $evenement->setNbrParticipants($evenement->getNbrParticipants() + 1);
         $em->persist($evenement);
         $em->persist($user);
         $em->flush();
+        $events = new ArrayCollection();
+        $all = $em->getRepository('EventBundle:Event')->findAll();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        $events = $em->getRepository('EventBundle:Event')->findAll();
+        foreach ($all as $e) {
+            if (($e->getDate() > new  \DateTime('now')) // Date mazelet mat3adetch
+                && ( ($e->getParticipants()->count() <= $e->getNbrPlaces()) // mazel famma blassa
+                    || $e->getParticipants()->contains($user) )) { // walla l user connecté ykoun mel participant, bech ynajem y annuliiis
+                $events->add($e);
+            }
+        }
+
         $template = $this->render(
             '@Event/Event/allEvents.html.twig',
             [
                 'events' => $events,
             ]
-        )->getContent()
-        ;
+        )->getContent();
 
-        $json     = json_encode($template);
+        $json = json_encode($template);
         $response = new Response($json, 200);
         $response->headers->set('Content-Type', 'application/json');
 
@@ -141,7 +201,7 @@ class EvenementController extends Controller
         $em = $this->getDoctrine()->getManager();
         $id = $request->get('id');
         $em = $this->getDoctrine()->getManager();
-        $evenement =  $em->getRepository('EventBundle:Event')->find($id);
+        $evenement = $em->getRepository('EventBundle:Event')->find($id);
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $evenement->removeParticipant($user);
@@ -150,8 +210,17 @@ class EvenementController extends Controller
         $em->persist($user);
         $em->flush();
 
-        $events = $em->getRepository('EventBundle:Event')->findAll();
+        $all = $em->getRepository('EventBundle:Event')->findAll();
+        $events = new ArrayCollection();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
+        foreach ($all as $e) {
+            if (($e->getDate() > new  \DateTime('now')) // Date mazelet mat3adetch
+                && ( ($e->getParticipants()->count() <= $e->getNbrPlaces()) // mazel famma blassa
+                    || $e->getParticipants()->contains($user) )) { // walla l user connecté ykoun mel participant, bech ynajem y annuliiis
+                $events->add($e);
+            }
+        }
         $template = $this->render(
             '@Event/Event/allEvents.html.twig',
             [
@@ -159,7 +228,7 @@ class EvenementController extends Controller
             ]
         )->getContent();
 
-        $json     = json_encode($template);
+        $json = json_encode($template);
         $response = new Response($json, 200);
         $response->headers->set('Content-Type', 'application/json');
 
@@ -169,13 +238,13 @@ class EvenementController extends Controller
     /**
      * Displays a form to edit an existing user entity.
      *
-     * @Route("/event/{id}/edit", name="event_edit")
+     * @Route("/dashboard/event/{id}/edit", name="event_edit")
      * @Method({"GET", "POST"})
      */
     public function editAction(Request $request, Event $event)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN') || $user != $event->getCreatedBy()) {
+        if ((!$user->hasRole('ROLE_ADMIN')) || ($user != $event->getCreatedBy())) {
             throw new AccessDeniedException("Vous n'êtes pas autorisés à accéder à cette page!", Response::HTTP_FORBIDDEN);
         }
         $editForm = $this->createForm('EventBundle\Form\EventType', $event);
@@ -186,35 +255,62 @@ class EvenementController extends Controller
             return $this->redirectToRoute('club_dashboard_index'); // club_index : dashboard
         }
 
-        return $this->render('@Event/Event/edit.html.twig', array(
+        return $this->render('@Event/Event/dashboard/edit.html.twig', array(
             'event' => $event,
             'edit_form' => $editForm->createView(),
         ));
     }
 
-
     /**
      *
-     * @Route("/rechercheEventKeyword", name="event_keyword_recherche")
+     * @Route("/rechercheEventByCriteria", name="event_all_recherche")
      * @Method({"GET", "POST"})
      */
-    public function rechercheAction(Request $request)
+    public function rechercheByAllCriteriaAction(Request $request)
     {
-        $em      = $this->getDoctrine()->getManager();
-        $keyWord = $request->get('keyWord');
-        $events = $em->getRepository('EventBundle:Event')->findEvent($keyWord);
+        $em = $this->getDoctrine()->getManager();
+        $ville = $request->get('ville');
+        $type = $request->get('type');
+        $keyword = $request->get('keyword');
+        $events = $em->getRepository('EventBundle:Event')->findAll();
+
+        if ($type == null && $ville) {
+            $events = $em->getRepository('EventBundle:Event')->findEventByVille($ville, $keyword);
+
+        } else if ($ville== null && $type){
+            $events = $em->getRepository('EventBundle:Event')->findEventByType($type, $keyword);
+
+        } else if ($ville == null && $type== null){
+            $events = $em->getRepository('EventBundle:Event')->findEvent($keyword);
+        } else {
+            $events = $em->getRepository('EventBundle:Event')->findEventByTypeAndVille($type,$ville, $keyword);
+        }
+
+
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $evts = new ArrayCollection();
+        foreach ($events as $e) {
+            if  ($e->getParticipants()->count() <= $e->getNbrPlaces()
+                    || $e->getParticipants()->contains($user) ) {
+                $evts->add($e);
+            }
+        }
 
         $template = $this->render(
             '@Event/Event/allEvents.html.twig',
             [
-                'events' => $events,
+                'events' => $evts,
             ]
         )->getContent();
 
-        $json     = json_encode($template);
+
+        $json = json_encode($template);
         $response = new Response($json, 200);
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
+
+
+
 }
