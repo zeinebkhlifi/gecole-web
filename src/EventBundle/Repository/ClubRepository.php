@@ -10,4 +10,32 @@ namespace EventBundle\Repository;
  */
 class ClubRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function findClub($keyWord)
+    {
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $q  = $qb->select(array('p'))
+            ->from('EventBundle:Club', 'p')
+            ->where('p.libelle LIKE :motClee')
+            ->orWhere('p.description LIKE :motClee')
+            ->setParameter('motClee', '%'.$keyWord.'%')
+            ->getQuery();
+        return $q->getResult();
+    }
+
+    public function findClubByType($keyWord)
+    {
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $q  = $qb->select(array('p'))
+            ->from('EventBundle:Club', 'p')
+            ->where('p.type =:motClee')
+            ->setParameter('motClee', $keyWord)
+            ->getQuery();
+        return $q->getResult();
+    }
+
+
 }

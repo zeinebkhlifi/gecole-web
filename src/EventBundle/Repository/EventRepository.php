@@ -11,17 +11,67 @@ namespace EventBundle\Repository;
 class EventRepository extends \Doctrine\ORM\EntityRepository
 {
 
-    public function findEvent($keyWord)
+    public function findEvent($keyword)
     {
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();
 
-        $q  = $qb->select(array('p'))
+        $q = $qb->select(array('p'))
             ->from('EventBundle:Event', 'p')
-            ->where('p.libelle LIKE :motClee')
-            ->orWhere('p.description LIKE :motClee')
+            ->where("(p.libelle LIKE :motClee) OR (p.description LIKE :motClee)")
+            ->andWhere('p.date >= CURRENT_TIMESTAMP()')
             ->orderBy('p.date', 'DESC')
-            ->setParameter('motClee', '%'.$keyWord.'%')
+            ->setParameter('motClee', '%' . $keyword . '%')
+            ->getQuery();
+        return $q->getResult();
+    }
+
+    public function findEventByType($type, $keyword)
+    {
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $q = $qb->select(array('p'))
+            ->from('EventBundle:Event', 'p')
+            ->where('p.type =:t')
+            ->andWhere("(p.libelle LIKE :motClee) OR (p.description LIKE :motClee)")
+            ->andWhere('p.date >= CURRENT_TIMESTAMP()')
+            ->setParameter('motClee', '%' . $keyword . '%')
+            ->setParameter('t', $type)
+            ->getQuery();
+        return $q->getResult();
+    }
+
+    public function findEventByVille($v, $keyword)
+    {
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $q = $qb->select(array('p'))
+            ->from('EventBundle:Event', 'p')
+            ->where('p.lieu =:v')
+            ->andWhere("(p.libelle LIKE :motClee) OR (p.description LIKE :motClee)")
+            ->andWhere('p.date >= CURRENT_TIMESTAMP()')
+            ->setParameter('motClee', '%' . $keyword . '%')
+            ->setParameter('v', $v)
+            ->getQuery();
+        return $q->getResult();
+    }
+
+    public function findEventByTypeAndVille($t, $v, $keyword)
+    {
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $q = $qb->select(array('p'))
+            ->from('EventBundle:Event', 'p')
+            ->where('p.lieu =:v')
+            ->andWhere("(p.libelle LIKE :motClee) OR (p.description LIKE :motClee)")
+            ->andWhere('p.date >= CURRENT_TIMESTAMP()')
+            ->andWhere('p.type =:t')
+            ->setParameter('motClee', '%' . $keyword . '%')
+            ->setParameter('v', $v)
+            ->setParameter('t', $t)
             ->getQuery();
         return $q->getResult();
     }
