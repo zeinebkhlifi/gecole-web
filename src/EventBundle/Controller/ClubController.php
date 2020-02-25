@@ -64,14 +64,22 @@ class ClubController extends Controller
 
     }
 
+
     /**
-     * @Route("/dashboard/event/{id}", name="event_show")
+     * @Route("/club/{id}", name="club_show")
      * @Method("GET")
      */
-    public function showAction(Event $event)
+    public function showAction(Club $club)
     {
-        return $this->render('@Event/Club/dashboard/eventShow.html.twig', array(
-            'event' => $event,
+        $club = $this->getDoctrine()->getManager()->getRepository('EventBundle:Club')->findOneBy([
+            'createdBy'=> $club->getCreatedBy()
+        ]);
+        $eventsCreated = $this->getDoctrine()->getManager()->getRepository('EventBundle:Event')->findBy([
+            'createdBy'=> $club->getCreatedBy()
+        ]);
+        return $this->render('@Event/Club/show.html.twig', array(
+            'club' => $club,
+            'eventsClub' => $eventsCreated,
         ));
     }
 
@@ -135,5 +143,80 @@ class ClubController extends Controller
         }
     }
 
+    /**
+     * Displays a form to edit an existing user entity.
+     *
+     * @Route("/club/{id}/edit", name="club_edit")
+     * @Method({"GET", "POST"})
+     */
+    public function editAction(Request $request, Club $club)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN') || $user != $club->getCreatedBy()) {
+            throw new AccessDeniedException("Vous n'êtes pas autorisés à accéder à cette page!", Response::HTTP_FORBIDDEN);
+        }
+        $editForm = $this->createForm('EventBundle\Form\ClubType', $club);
+        $editForm->handleRequest($request);
+
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+            return $this->redirectToRoute('club_dashboard_index'); // club_index : dashboard
+        }
+
+        return $this->render('@Event/Club/dashboard/edit.html.twig', array(
+            'club' => $club,
+            'edit_form' => $editForm->createView(),
+        ));
+    }
+
+    /**
+     *
+     * @Route("/rechercheClubKeyword", name="club_keyword_recherche")
+     * @Method({"GET", "POST"})
+     */
+    public function rechercheAction(Request $request)
+    {
+        $em      = $this->getDoctrine()->getManager();
+        $keyWord = $request->get('keyWord');
+        $clubs = $em->getRepository('EventBundle:Club')->findClub($keyWord);
+
+        $template = $this->render(
+            '@Event/Club/allClub.html.twig',
+            [
+                'clubs' => $clubs,
+            ]
+        )->getContent();
+
+        $json     = json_encode($template);
+        $response = new Response($json, 200);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    /**
+     *
+     * @Route("/rechercheClubByTypeKeyword", name="club_type_recherche")
+     * @Method({"GET", "POST"})
+     */
+    public function rechercheParTypeAction(Request $request)
+    {
+        $em      = $this->getDoctrine()->getManager();
+        $type = $request->get('type');
+        $clubs = $em->getRepository('EventBundle:Club')->findClubByType($type);
+
+        $template = $this->render(
+            '@Event/Club/allClub.html.twig',
+            [
+                'clubs' => $clubs,
+            ]
+        )->getContent();
+
+        $json     = json_encode($template);
+        $response = new Response($json, 200);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
 
 }
