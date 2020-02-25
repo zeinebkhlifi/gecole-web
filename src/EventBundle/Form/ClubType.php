@@ -21,7 +21,7 @@ class ClubType extends AbstractType
             ->add('type', ChoiceType::class, [
                 'choices'  => [
                     'Musical' => 'Musical',
-                    'Sport' => 'Sportif',
+                    'Sportif' => 'Sportif',
                     'Socicale' => 'Sociale',
                 ],
             ])

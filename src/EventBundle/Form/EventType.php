@@ -6,6 +6,8 @@ use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -17,22 +19,31 @@ class EventType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('libelle')
+            ->add('libelle', TextType::class, array(
+                'required'=> false,
+            ))
             ->add('description', CKEditorType::class, array(
                 'attr' => array(
-                    'class' => 'eventDescription'
+                    'class' => 'ckeditor'
                 ),
             ))
             ->add('type', ChoiceType::class, [
+                'required'=> false,
                 'choices'  => [
                     'Musical' => 'Musical',
-                    'Sport' => 'Sportif',
+                    'Sporttif' => 'Sportif',
                     'Socicale' => 'Sociale',
                 ],
             ])
-            ->add('lieu')
-            ->add('date', DateType::class)
-            ->add('nbrPlaces');
+            ->add('lieu', TextType::class, array(
+                'required'=> false,
+            ))
+            ->add('date', DateType::class, array(
+                'required'=> false,
+            ) )
+            ->add('nbrPlaces', NumberType::class, array(
+                'required'=> false,
+            ));
     }/**
      * {@inheritdoc}
      */
